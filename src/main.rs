@@ -1,12 +1,11 @@
-//! Shows how to create graphics that snap to the pixel grid by rendering to a texture in 2D
+use bevy::prelude::*;
 
-use bevy::{material::key, math::VectorSpace, prelude::*};
-
+mod input;
 mod render;
 
 #[derive(Component)]
 struct Player;
-const MOVE_SPEED: f32 = 1.;
+const MOVE_SPEED: f32 = 50.;
 
 fn main() {
     App::new()
@@ -41,27 +40,17 @@ fn rotate(time: Res<Time>, mut transforms: Query<&mut Transform, With<render::Ro
 }
 
 fn move_player(
+    input: Res<ButtonInput<KeyCode>>,
+    time: Res<Time>,
     mut transforms: Query<&mut Transform, With<Player>>,
-    keys: Res<ButtonInput<KeyCode>>,
 ) {
-    for mut transform in transforms.iter_mut() {
-        let mut direction = Vec3::ZERO;
+    let direction = input::read_movement_input(&input);
 
-        if keys.pressed(KeyCode::KeyW) || keys.pressed(KeyCode::ArrowUp) {
-            direction.y += 1.0;
-        } // up
-        if keys.pressed(KeyCode::KeyS) || keys.pressed(KeyCode::ArrowDown) {
-            direction.y -= 1.0;
-        } // down
-        if keys.pressed(KeyCode::KeyD) || keys.pressed(KeyCode::ArrowRight) {
-            direction.x += 1.0;
-        } // right
-        if keys.pressed(KeyCode::KeyA) || keys.pressed(KeyCode::ArrowLeft) {
-            direction.x -= 1.0;
-        } // left
-
-        if 0.0 < direction.length() {
-            transform.translation += MOVE_SPEED * direction.normalize();
+    // Handle movement
+    if direction != Vec2::ZERO {
+        for mut transform in &mut transforms {
+            let delta = direction.normalize() * MOVE_SPEED * time.delta_secs();
+            transform.translation += delta.extend(0.0);
         }
     }
 }
