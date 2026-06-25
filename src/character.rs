@@ -64,7 +64,7 @@ pub fn update_texture_atlas_index(
             continue;
         };
 
-        // Jump to next index every 1 seconds (assuming 1..5 are valid indices)
+        // Jump to next index every set amount of seconds (assuming 1..5 are valid indices)
         if texture_atlas.index > 4 {
             texture_atlas.index = 0;
         } else {
